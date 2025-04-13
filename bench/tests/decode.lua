@@ -2,7 +2,7 @@ local benchmark = require("bench.benchmark")
 local lai = require("json")            -- github.com/laimadoo/json.lua
 local rxi = require("bench.rxi_json")  -- github.com/rxi/json.lua
 
-local text == [[{
+local text = [[{
   "firstName": "John",
   "lastName": "Smith",
   "isAlive": true,
