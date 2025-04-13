@@ -1,6 +1,6 @@
 local benchmark = require("bench.benchmark")
-local lai = require("json")
-local rxi = require("bench.rxi_json")
+local lai = require("json")            -- github.com/laimadoo/json.lua
+local rxi = require("bench.rxi_json")  -- github.com/rxi/json.lua
 
 local data = {
     firstName = "John",
