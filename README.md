@@ -12,9 +12,9 @@
 - `json.encode({ 1, 2, 3, { x = 10 } })` - *Возвращает `[1,2,3,{"x":10}]`*
 - `json.decode(value [string])` - *Преобразует строку JSON в значение Lua.*
 ```lua
-json.decode('[1,2,3,{"x":10}]') -- return { 1, 2, 3, { x = 10 } }
+json.decode('[1,2,3,{"x":10}]') -- return {1, 2, 3, { x = 10 }}
 
-json.prettify({ 1, 2, { x = 10 } }, { text = "  " })
+json.prettify({1, 2, { x = 10 }}, "  ")
 -- Вывод: 
 -- [1, 2, {
 --   "x":10
