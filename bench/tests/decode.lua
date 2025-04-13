@@ -1,3 +1,7 @@
+local benchmark = require("bench.benchmark")
+local lai = require("json")            -- github.com/laimadoo/json.lua
+local rxi = require("bench.rxi_json")  -- github.com/rxi/json.lua
+
 local text == [[{
   "firstName": "John",
   "lastName": "Smith",
@@ -22,3 +26,10 @@ local text == [[{
   "children": [],
   "spouse": null
 }]]
+
+local r1 = benchmark(100, lai.decode, text)
+local r2 = benchmark(100, rxi.decode, text)
+print("time")
+print("lai: " .. r1 .. " rxi: " .. r2)
+print("diff lai - rxi")
+print(r1-r2 "-- " .. (r1/r2) .. "%")
