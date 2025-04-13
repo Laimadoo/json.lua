@@ -3,7 +3,7 @@ local unpack  = unpack or table.unpack
 local tconcat = table.concat
 
 --===============================================
--- Encode + Prettify
+-- Encode
 --===============================================
 local encode_types -- table
 
@@ -54,18 +54,18 @@ local encode_table = function(value)
             local v = value[i]
             parts[i] = et[type(v)](v)
         end
-        return "[" .. tconcat(parts, ",") .. "]"
+        return tconcat({ "[", tconcat(parts, ","), "]" })
     end
     
     local parts = {}
     local i = 1
     for k, v in pairs(value) do
         if type(k) == "string" then
-            parts[i] = '"' .. escape_string(k) .. '":' .. encode_types[type(v)](v)
+            parts[i] = tconcat({ '"', escape_string(k), '":', et[type(v)](v) })
             i = i + 1
         end
     end
-    return "{" .. tconcat(parts, ",") .. "}"
+    return tconcat({ "{",tconcat(parts, ","), "}" })
 end
 
 local encode_nil = function()
@@ -89,45 +89,59 @@ json.encode = function(value)
     return encode_types[t](value)
 end
 
-json.prettify = function(value, tab, ntabs)
-    tab = tab or "  "
-    ntabs = ntabs or 0
+--===============================================
+-- Prettify
+--===============================================
+local prettify_types -- table
+
+local prettify_table = function(value, tab, level, isarray)
+    local pt = prettify_types
+    local T = isarray and "\n" .. tab:rep(level) or ""
     
-    local t = type(value)
-    local TAB = string.rep(tab, ntabs)
-    local TAB2 = string.rep(tab, ntabs+1)
-    
-    if t == "string" then
-        return '"' .. escape_string(value) .. '"'
-    elseif t == "number" then
-        return tostring(value)
-    elseif t == "boolean" then
-        return value and "true" or "false"
-    elseif t == "table" then
-        local len = is_array(value)
-        if len then
-            local parts = {}
-            for i = 1, len do
-                local v = value[i]
-                parts[i] = json.prettify(v, tab, ntabs+1)
-            end
-            return "[" .. tconcat(parts, ", ") .. "]"
-        else
-            local parts = {}
-            local i = 1
-            for k, v in pairs(value) do
-                if type(k) == "string" then
-                    parts[i] = '"' .. escape_string(k) .. '":' .. json.prettify(v, tab, ntabs+1)
-                    i = i + 1
-                end
-            end
-            return tconcat({"{\n", TAB2, table.concat(parts, ", \n" .. TAB2), "\n", TAB, "}"})
+    local len = is_array(value)
+    if len then
+        local t
+        local parts = {}
+        for i = 1, len do
+            local v = value[i]
+            t = type(v)
+            parts[i] = pt[t](v, tab, level+1, true)
         end
-    elseif t == "nil" then
-        return TAB .. "null"
-    else
-        error("Unsupported type: " .. t)
+        local T2 = ""
+        if t == "table" then
+            T2 = "\n" .. tab:rep(level)
+        end
+        return tconcat({T, "[", tconcat(parts, ", "), T2, "]" })
     end
+    
+    local parts = {}
+    local i = 1
+    for k, v in pairs(value) do
+        if type(k) == "string" then
+            parts[i] = tconcat({tab, '"', escape_string(k), '":', pt[type(v)](v, tab, level+1) })
+            i = i + 1
+        end
+    end
+    return tconcat({ "{\n", tab:rep(level), tconcat(parts, ",\n" .. tab:rep(level)), "\n", tab:rep(level), "}" })
+end
+
+prettify_types = {
+	table   = prettify_table,
+	
+	number  = encode_number,
+	string  = encode_string,
+	boolean = encode_boolean,
+	["nil"] = encode_nil,
+	
+	["function"] = function() error("Unsupported type: function") end,
+	["userdata"] = function() error("Unsupported type: function") end,
+	["thread"] = function() error("Unsupported type: function") end
+}
+
+json.prettify = function(value, tab)
+    tab = tab or "  "
+    local t = type(value)
+    return prettify_types[t](value, tab, 0)
 end
 
 --===============================================
