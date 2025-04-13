@@ -54,18 +54,18 @@ local encode_table = function(value)
             local v = value[i]
             parts[i] = et[type(v)](v)
         end
-        return tconcat({ "[", tconcat(parts, ","), "]" })
+        return "[" .. tconcat(parts, ",") .."]"
     end
     
     local parts = {}
     local i = 1
     for k, v in pairs(value) do
         if type(k) == "string" then
-            parts[i] = tconcat({ '"', escape_string(k), '":', et[type(v)](v) })
+            parts[i] = '"' .. escape_string(k) .. '":' .. et[type(v)](v)
             i = i + 1
         end
     end
-    return tconcat({ "{",tconcat(parts, ","), "}" })
+    return "{" .. tconcat(parts, ",") .. "}"
 end
 
 local encode_nil = function()
