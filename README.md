@@ -1,2 +1,3 @@
-[EN](README/EN.md)
-[RU](README/RU.md)
+LANGUAGES:
+- [EN](README/EN.md)
+- [RU](README/RU.md)
