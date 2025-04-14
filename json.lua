@@ -54,18 +54,18 @@ local encode_table = function(value)
             local v = value[i]
             parts[i] = et[type(v)](v)
         end
-        return "[" .. tconcat(parts, ",") .."]"
+        return tconcat({ "[", tconcat(parts, ","), "]" })
     end
     
     local parts = {}
     local i = 1
     for k, v in pairs(value) do
         if type(k) == "string" then
-            parts[i] = '"' .. escape_string(k) .. '":' .. et[type(v)](v)
+            parts[i] = tconcat({ '"', escape_string(k), '":', et[type(v)](v) })
             i = i + 1
         end
     end
-    return "{" .. tconcat(parts, ",") .. "}"
+    return tconcat({ "{",tconcat(parts, ","), "}" })
 end
 
 local encode_nil = function()
@@ -164,12 +164,12 @@ local function back_escape_string(s)
 end
 
 -- decodes
-decode_number = function(value, pos)
+local decode_number = function(value, pos)
     local _, p = value:find("[-]?%d+", pos)
     return tonumber(value:sub(pos, p)), p+1
 end
 
-decode_string = function(value, pos)
+local decode_string = function(value, pos)
     local p = pos
     local lp1, lp2
     
@@ -183,7 +183,7 @@ decode_string = function(value, pos)
     return back_escape_string(v), p+1
 end
 
-decode_boolean = function(value, pos)
+local decode_boolean = function(value, pos)
     local v = value:sub(pos, pos)
     if v == "t" then
         return true, pos+4
@@ -191,11 +191,11 @@ decode_boolean = function(value, pos)
     return false, pos+5
 end
 
-decode_nil = function(value, pos)
+local decode_nil = function(value, pos)
     return nil, pos+4
 end
 
-decode_object = function(value, pos, lenv)
+local decode_object = function(value, pos, lenv)
     local t = {}
     local iskey = false
     local key = ""
@@ -217,7 +217,7 @@ decode_object = function(value, pos, lenv)
     end
 end
 
-decode_array = function(value, pos, lenv)
+local decode_array = function(value, pos, lenv)
     local t = {}
     local tlen = 0
     
