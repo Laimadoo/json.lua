@@ -118,7 +118,7 @@ local prettify_table = function(value, tab, level, isarray)
     local i = 1
     for k, v in pairs(value) do
         if type(k) == "string" then
-            parts[i] = tconcat({tab, '"', escape_string(k), '":', pt[type(v)](v, tab, level+1) })
+            parts[i] = tconcat({tab, '"', escape_string(k), '": ', pt[type(v)](v, tab, level+1) })
             i = i + 1
         end
     end
