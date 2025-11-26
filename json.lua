@@ -165,7 +165,7 @@ end
 
 -- decodes
 local decode_number = function(value, pos)
-    local _, p = value:find("[-]?%d*[.]?%d*", pos)
+    local _, p = value:find("[+-]?%d*[.]?%d*[eE]?-?%d*", pos)
     return tonumber(value:sub(pos, p)), p+1
 end
 
@@ -241,6 +241,7 @@ decode_types = {
 	['n'] = decode_nil,
 	['"'] = decode_string,
 	['-'] = decode_number,
+	['+'] = decode_number,
 	['.'] = decode_number,
 	['0'] = decode_number,
 	['1'] = decode_number,
