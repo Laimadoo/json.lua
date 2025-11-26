@@ -165,7 +165,7 @@ end
 
 -- decodes
 local decode_number = function(value, pos)
-    local _, p = value:find("[-]?%d+", pos)
+    local _, p = value:find("[-]?%d*[.]?%d*", pos)
     return tonumber(value:sub(pos, p)), p+1
 end
 
@@ -202,7 +202,7 @@ local decode_object = function(value, pos, lenv)
     
     local i = pos+1
     while i <= lenv do
-        local p = value:find("[-0-9tfn%[%{%}\"]", i)
+        local p = value:find("[-.0-9tfn%[%{%}\"]", i)
         local v = value:sub(p, p)
         
         if v == "}" then return t, p+1 end
@@ -223,7 +223,7 @@ local decode_array = function(value, pos, lenv)
     
     local i = pos+1
     while i <= lenv do
-        local p = value:find("[-0-9tfn%[%{%]\"]", i)
+        local p = value:find("[-.0-9tfn%[%{%]\"]", i)
         local v = value:sub(p, p)
         
         if v == "]" then return t, p+1 end
@@ -241,6 +241,7 @@ decode_types = {
 	['n'] = decode_nil,
 	['"'] = decode_string,
 	['-'] = decode_number,
+	['.'] = decode_number,
 	['0'] = decode_number,
 	['1'] = decode_number,
 	['2'] = decode_number,
@@ -261,7 +262,7 @@ json.decode = function(value)
     
     local i = 1
     while i <= lenv do
-        local p = value:find("[-0-9tfn%[%{\"]", i)
+        local p = value:find("[-.0-9tfn%[%{\"]", i)
         if not p then break end
         
         local v = value:sub(p, p)
